@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@plugin "daisyui";
+@plugin "daisyui/theme" {
+  name: "mon-theme";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+
+  /* ── BASE ── Fond blanc cassé légèrement violacé */
+  --color-base-100: oklch(98% 0.006 325);
+  --color-base-200: oklch(95% 0.01 325);
+  --color-base-300: oklch(91% 0.015 320);
+  --color-base-content: oklch(25% 0.02 310);
+
+  /* ── PRIMARY ── Violet / Magenta principal #A020A0 */
+  --color-primary: oklch(52% 0.22 320);
+  --color-primary-content: oklch(100% 0 0);
+
+  /* ── SECONDARY ── Violet plus clair (sidebar, headers) */
+  --color-secondary: oklch(72% 0.16 318);
+  --color-secondary-content: oklch(100% 0 0);
+
+  /* ── ACCENT ── Vert (boutons de validation) */
+  --color-accent: oklch(63% 0.17 145);
+  --color-accent-content: oklch(100% 0 0);
+
+  /* ── NEUTRAL ── Gris neutre pour textes secondaires */
+  --color-neutral: oklch(60% 0.01 280);
+  --color-neutral-content: oklch(98% 0 0);
+
+  /* ── INFO ── Bleu-violet */
+  --color-info: oklch(62% 0.16 280);
+  --color-info-content: oklch(98% 0.005 280);
+
+  /* ── SUCCESS ── Vert cohérent avec l'accent */
+  --color-success: oklch(63% 0.17 145);
+  --color-success-content: oklch(98% 0.01 145);
+
+  /* ── WARNING ── Jaune/Ambre */
+  --color-warning: oklch(80% 0.16 85);
+  --color-warning-content: oklch(25% 0.06 85);
+
+  /* ── ERROR ── Rouge légèrement rosé */
+  --color-error: oklch(58% 0.21 15);
+  --color-error-content: oklch(98% 0.01 15);
+
+  /* ── FORMES & STYLE ── */
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+html {
+  scroll-behavior: smooth;
+  transition: scroll-behavior 30s ease;
+}
+.Toastify__toast-icon {
+  display: none !important;
+}
+
+/* ─── Keyframes ─────────────────────────────────────────── */
+@keyframes gaap-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes gaap-slide-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes gaap-scale-in {
+  from { opacity: 0; transform: scale(0.95) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+@keyframes gaap-slide-right {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ─── Utility classes ───────────────────────────────────── */
+.animate-fade-in    { animation: gaap-fade-in    0.32s ease-out both; }
+.animate-slide-up   { animation: gaap-slide-up   0.42s ease-out both; }
+.animate-scale-in   { animation: gaap-scale-in   0.28s cubic-bezier(0.34,1.56,0.64,1) both; }
+.animate-slide-right{ animation: gaap-slide-right 0.35s ease-out both; }
+
+/* ─── Stagger helpers ───────────────────────────────────── */
+.anim-d1 { animation-delay:  70ms; }
+.anim-d2 { animation-delay: 140ms; }
+.anim-d3 { animation-delay: 210ms; }
+.anim-d4 { animation-delay: 280ms; }
+.anim-d5 { animation-delay: 350ms; }
+.anim-d6 { animation-delay: 420ms; }

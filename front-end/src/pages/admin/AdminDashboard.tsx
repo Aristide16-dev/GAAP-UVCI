@@ -179,7 +179,7 @@ export default function AdminDashboard() {
           login: data.login || "", nom: data.nom || "", email: data.email || "",
           role: (data.role as Role) || "enseignant",
           status: (data.status as Status) || "ACTIF",
-          password: data.password || "password123",
+          password: data.password || "",
         };
         const d = data as typeof data & { id_grade?: number; id_statut?: number; id_depart?: number };
         if (d.id_grade) createPayload.id_grade = d.id_grade;

@@ -18,7 +18,7 @@ import { adminService, type User as AdminUser } from "../../services/admin.servi
 const EMPTY_FORM: CreateEnseignantData = {
   nom_ens: "", pren_ens: "", email_ens: "", tel_ens: "",
   id_grade: 0, id_statut: 0, id_depart: 0, taux_hor_ens: 0,
-  user_log_ens: "", user_pasw_ens: "Uvci@2024",
+  user_log_ens: "", user_pasw_ens: "",
 };
 
 export default function EnseignantsList() {

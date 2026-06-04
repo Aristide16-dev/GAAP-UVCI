@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -8,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('activite_pedagogique', 'statut')) {
+        if (! Schema::hasColumn('activite_pedagogique', 'statut')) {
             Schema::table('activite_pedagogique', function (Blueprint $table) {
                 $table->string('statut', 20)->default('en_attente')->after('vol_hor_cal');
             });

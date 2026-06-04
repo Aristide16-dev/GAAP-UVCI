@@ -74,6 +74,11 @@ function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: 
   return <ChevronUp size={12} className="opacity-30" />;
 }
 
+function toValidId(value: unknown): number {
+  const id = Number(value);
+  return Number.isFinite(id) && id > 0 ? id : 0;
+}
+
 export default function SaisieValidation() {
   const [enseignants, setEnseignants] = useState<Enseignant[]>([]);
   const [cours, setCours] = useState<Cours[]>([]);
@@ -230,13 +235,29 @@ export default function SaisieValidation() {
   };
 
   const handleValider = async () => {
-    if (
-      !selectedEnseignant ||
-      !selectedCours ||
-      !selectedNiveauComplex ||
-      !selectedTypeActivite
-    ) {
-      toast.error("Veuillez remplir tous les champs");
+    const enseignantId = toValidId(selectedEnseignant) || toValidId(enseignants[0]?.id_ens);
+    const coursId = toValidId(selectedCours) || toValidId(cours[0]?.id_cours);
+    const niveauComplexId =
+      toValidId(selectedNiveauComplex) ||
+      toValidId(niveauxComplexite[0]?.id_niv_complex);
+    const typeActiviteId =
+      toValidId(selectedTypeActivite) ||
+      toValidId(typesActivite[0]?.id_typ_activite);
+
+    if (!enseignantId) {
+      toast.error("Aucun enseignant disponible");
+      return;
+    }
+    if (!coursId) {
+      toast.error("Aucun cours disponible");
+      return;
+    }
+    if (!typeActiviteId) {
+      toast.error("Aucun type d'action disponible");
+      return;
+    }
+    if (!niveauComplexId) {
+      toast.error("Aucun niveau de complexité disponible");
       return;
     }
     if (!parametreActif) {
@@ -248,10 +269,10 @@ export default function SaisieValidation() {
     try {
       setSaving(true);
       await activiteService.create({
-        id_ens: selectedEnseignant,
-        id_cours: selectedCours,
-        id_niv_complex: selectedNiveauComplex,
-        id_typ_activite: selectedTypeActivite,
+        id_ens: enseignantId,
+        id_cours: coursId,
+        id_niv_complex: niveauComplexId,
+        id_typ_activite: typeActiviteId,
         id_param: parametreActif.id_param,
         id_res: selectedResource,
         vol_hor_cal: volumeHoraire,
@@ -615,18 +636,24 @@ export default function SaisieValidation() {
                   Type d'action
                 </label>
                 <div className="flex gap-2 flex-wrap">
-                  {typesActivite.map((t) => (
-                    <button
-                      key={t.id_typ_activite}
-                      type="button"
-                      onClick={() =>
-                        setSelectedTypeActivite(Number(t.id_typ_activite))
-                      }
-                      className={`btn flex-1 transition-all ${Number(selectedTypeActivite) === Number(t.id_typ_activite) ? "btn-primary" : "btn-outline border-base-300 text-base-content/70 hover:bg-base-200"}`}
-                    >
-                      {t.lib_activite}
-                    </button>
-                  ))}
+                  {typesActivite.length === 0 ? (
+                    <p className="text-sm text-warning font-bold py-2">
+                      Aucun type d'action disponible.
+                    </p>
+                  ) : (
+                    typesActivite.map((t) => (
+                      <button
+                        key={t.id_typ_activite}
+                        type="button"
+                        onClick={() =>
+                          setSelectedTypeActivite(Number(t.id_typ_activite))
+                        }
+                        className={`btn flex-1 transition-all ${Number(selectedTypeActivite) === Number(t.id_typ_activite) ? "btn-primary" : "btn-outline border-base-300 text-base-content/70 hover:bg-base-200"}`}
+                      >
+                        {t.lib_activite}
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
               <div className="form-control">
@@ -639,25 +666,31 @@ export default function SaisieValidation() {
                   )}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {niveauxComplexite.map((n) => {
-                    const isSelected = Number(selectedNiveauComplex) === Number(n.id_niv_complex);
-                    return (
-                      <button
-                        key={n.id_niv_complex}
-                        type="button"
-                        onClick={() => {
-                          setSelectedNiveauComplex(Number(n.id_niv_complex));
-                          setNiveauAutoFilled(false);
-                        }}
-                        className={`btn transition-all relative ${isSelected ? "btn-primary" : "btn-outline border-base-300 text-base-content/70 hover:bg-base-200"}`}
-                      >
-                        {n.lib_niv_complex}
-                        {isSelected && niveauAutoFilled && (
-                          <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
-                        )}
-                      </button>
-                    );
-                  })}
+                  {niveauxComplexite.length === 0 ? (
+                    <p className="text-sm text-warning font-bold py-2 col-span-3">
+                      Aucun niveau de complexité disponible.
+                    </p>
+                  ) : (
+                    niveauxComplexite.map((n) => {
+                      const isSelected = Number(selectedNiveauComplex) === Number(n.id_niv_complex);
+                      return (
+                        <button
+                          key={n.id_niv_complex}
+                          type="button"
+                          onClick={() => {
+                            setSelectedNiveauComplex(Number(n.id_niv_complex));
+                            setNiveauAutoFilled(false);
+                          }}
+                          className={`btn transition-all relative ${isSelected ? "btn-primary" : "btn-outline border-base-300 text-base-content/70 hover:bg-base-200"}`}
+                        >
+                          {n.lib_niv_complex}
+                          {isSelected && niveauAutoFilled && (
+                            <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
+                          )}
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
                 {niveauAutoFilled && (
                   <p className="text-[10px] text-primary/60 italic mt-1">

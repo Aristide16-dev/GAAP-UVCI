@@ -27,14 +27,14 @@ class TypeRessourceController extends Controller
 
         return response()->json([
             'message' => 'Liste des types de ressources.',
-            'data'    => $types,
+            'data' => $types,
         ]);
     }
 
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'typ_res'        => ['required', 'string', 'max:100'],
+            'typ_res' => ['required', 'string', 'max:100'],
             'id_niv_complex' => ['nullable', 'integer', 'exists:niveaux_complexite,id_niv_complex'],
         ]);
 
@@ -46,7 +46,7 @@ class TypeRessourceController extends Controller
 
         return response()->json([
             'message' => 'Type de ressource cree avec succes.',
-            'data'    => $typeRessource,
+            'data' => $typeRessource,
         ], 201);
     }
 
@@ -60,7 +60,7 @@ class TypeRessourceController extends Controller
 
         return response()->json([
             'message' => 'Type de ressource trouve.',
-            'data'    => $typeRessource,
+            'data' => $typeRessource,
         ]);
     }
 
@@ -87,7 +87,7 @@ class TypeRessourceController extends Controller
 
         return response()->json([
             'message' => 'Type de ressource modifie avec succes.',
-            'data'    => $typeRessource,
+            'data' => $typeRessource,
         ]);
     }
 
@@ -116,7 +116,7 @@ class TypeRessourceController extends Controller
     {
         return response()->json([
             'message' => 'Ce type de ressource existe deja.',
-            'errors'  => [
+            'errors' => [
                 'typ_res' => ['Ce libelle est deja utilise.'],
             ],
         ], 409);

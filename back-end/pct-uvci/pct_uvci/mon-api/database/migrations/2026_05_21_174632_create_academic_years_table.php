@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('academic_years', function (Blueprint $table) {
-    $table->id();
-    $table->string('year_label')->unique();
-    $table->date('odd_semester_start')->nullable();
-    $table->date('odd_semester_end')->nullable();
-    $table->date('even_semester_start')->nullable();
-    $table->date('even_semester_end')->nullable();
-    $table->boolean('is_active')->default(false);
-    $table->timestamps();
-});
+            $table->id();
+            $table->string('year_label')->unique();
+            $table->date('odd_semester_start')->nullable();
+            $table->date('odd_semester_end')->nullable();
+            $table->date('even_semester_start')->nullable();
+            $table->date('even_semester_end')->nullable();
+            $table->boolean('is_active')->default(false);
+            $table->timestamps();
+        });
     }
 
     /**

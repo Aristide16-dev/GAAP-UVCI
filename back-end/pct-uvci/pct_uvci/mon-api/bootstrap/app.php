@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Middleware\Cors;
+use App\Http\Middleware\EnseignantOwnerMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,15 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->prepend(\App\Http\Middleware\Cors::class);
-        
+        $middleware->prepend(Cors::class);
+
         $middleware->api(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            EnsureFrontendRequestsAreStateful::class,
         ]);
 
         $middleware->alias([
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
-            'enseignant.owner' => \App\Http\Middleware\EnseignantOwnerMiddleware::class,
+            'role' => RoleMiddleware::class,
+            'enseignant.owner' => EnseignantOwnerMiddleware::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

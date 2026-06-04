@@ -41,7 +41,7 @@ class VolumeHoraireService
      * Utilisé lors de la saisie d'une nouvelle activité (avant sauvegarde)
      * pour calculer le vol_hor_cal à stocker.
      *
-     * @param array $data - Tableau avec : id_cours, id_niv_complex, id_typ_activite
+     * @param  array  $data  - Tableau avec : id_cours, id_niv_complex, id_typ_activite
      * @return float Le volume horaire calculé (arrondi à 2 décimales)
      */
     public function calculateFromData(array $data): float
@@ -62,8 +62,12 @@ class VolumeHoraireService
             ->value('multiplicateur_base');
 
         // Sécurité : éviter une multiplication par zéro
-        if ($coefHoraire  <= 0) $coefHoraire  = 1;
-        if ($multiplicateur <= 0) $multiplicateur = 1;
+        if ($coefHoraire <= 0) {
+            $coefHoraire = 1;
+        }
+        if ($multiplicateur <= 0) {
+            $multiplicateur = 1;
+        }
 
         return round($nbSequences * $coefHoraire * $multiplicateur, 2);
     }
@@ -76,14 +80,14 @@ class VolumeHoraireService
      * L'eager loading évite le problème N+1 :
      * au lieu de 1 requête par activité, une seule requête charge tout.
      *
-     * @param ActivitePedagogique $activite - L'activité dont on calcule le volume
+     * @param  ActivitePedagogique  $activite  - L'activité dont on calcule le volume
      * @return float Le volume horaire calculé
      */
     public function calculateForActivity(ActivitePedagogique $activite): float
     {
         return $this->calculateFromData([
-            'id_cours'        => $activite->id_cours,
-            'id_niv_complex'  => $activite->id_niv_complex,
+            'id_cours' => $activite->id_cours,
+            'id_niv_complex' => $activite->id_niv_complex,
             'id_typ_activite' => $activite->id_typ_activite,
         ]);
     }
@@ -98,7 +102,6 @@ class VolumeHoraireService
      *
      * Cela évite de recalculer inutilement quand le volume est déjà stocké.
      *
-     * @param ActivitePedagogique $activite
      * @return float Le volume horaire (stocké ou calculé)
      */
     public function resolvedActivityVolume(ActivitePedagogique $activite): float

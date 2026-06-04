@@ -24,19 +24,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class TypeActivite extends Model
 {
-    protected $table      = 'type_activite';
+    protected $table = 'type_activite';
+
     protected $primaryKey = 'id_typ_activite';
-    public $timestamps    = false;
+
+    public $timestamps = false;
 
     protected $fillable = [
         'lib_activite',       // Libellé (ex: "Cours Magistral", "TD", "TP")
-        'multiplicateur_base',// Coefficient de pondération du type d'activité
+        'multiplicateur_base', // Coefficient de pondération du type d'activité
     ];
 
     protected function casts(): array
     {
         return [
-            'id_typ_activite'  => 'integer',
+            'id_typ_activite' => 'integer',
             'multiplicateur_base' => 'decimal:2',
         ];
     }

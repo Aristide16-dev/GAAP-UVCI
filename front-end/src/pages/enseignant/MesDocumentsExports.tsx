@@ -89,7 +89,9 @@ export default function MesDocumentsExports() {
       ];
       try {
         sessionStorage.setItem(SESSION_KEY, JSON.stringify(updated));
-      } catch {}
+      } catch {
+        // Storage may be unavailable in private browsing.
+      }
       return updated;
     });
   };

@@ -67,11 +67,11 @@ class AuthController extends Controller
 
         return match ($type) {
             'administrateur' => $this->loginUser(
-               $request,
-               Administrateur::class,
-               'user_log_adm',
-               'user_pasw_adm',
-               ['user_log_adm', 'nom_adm', 'pren_adm', 'email_adm', 'ann_aca', 'rol_usr'] // ← AJOUTER nom_adm, pren_adm, email_adm
+                $request,
+                Administrateur::class,
+                'user_log_adm',
+                'user_pasw_adm',
+                ['user_log_adm', 'nom_adm', 'pren_adm', 'email_adm', 'ann_aca', 'rol_usr'] // ← AJOUTER nom_adm, pren_adm, email_adm
             ),
             'secretaire' => $this->loginUser(
                 $request,
@@ -261,196 +261,197 @@ class AuthController extends Controller
     }
 
     private function loginUser(
-    Request $request,
-    string $modelClass,
-    string $loginField,
-    string $passwordField,
-    array $publicFields
-): JsonResponse {
-    $data = $request->validate([
-        'type' => ['required', Rule::in(['administrateur', 'secretaire', 'enseignant'])],
-        'login' => ['required', 'string', 'max:50'],
-        'password' => ['required', 'string'],
-    ]);
-
-    $user = $modelClass::query()->where($loginField, $data['login'])->first();
-
-    if (!$user || !Hash::check($data['password'], $user->{$passwordField})) {
-        Log::warning('Tentative de connexion échouée', [
-            'login' => $data['login'],
-            'type'  => $data['type'],
-            'ip'    => $request->ip(),
+        Request $request,
+        string $modelClass,
+        string $loginField,
+        string $passwordField,
+        array $publicFields
+    ): JsonResponse {
+        $data = $request->validate([
+            'type' => ['required', Rule::in(['administrateur', 'secretaire', 'enseignant'])],
+            'login' => ['required', 'string', 'max:50'],
+            'password' => ['required', 'string'],
         ]);
-        return response()->json([
-            'message' => 'Identifiants invalides.',
-        ], 401);
-    }
 
-    if (isset($user->status) && $user->status === 'INACTIF') {
-        return response()->json([
-            'message' => 'Votre compte a été désactivé. Veuillez contacter l\'administrateur.',
-        ], 403);
-    }
+        $user = $modelClass::query()->where($loginField, $data['login'])->first();
 
-    DB::table($user->getTable())
-        ->where($loginField, $data['login'])
-        ->update(['last_login_at' => now()]);
+        if (! $user || ! Hash::check($data['password'], $user->{$passwordField})) {
+            Log::warning('Tentative de connexion échouée', [
+                'login' => $data['login'],
+                'type' => $data['type'],
+                'ip' => $request->ip(),
+            ]);
 
-    $userData = [];
-    foreach ($publicFields as $field) {
-        $userData[$field] = $user->{$field};
-    }
-
-    $user->tokens()->delete();
-    $plainTextToken = $user->createToken(
-        $data['type'].'-'.Str::slug($data['login']),
-        [$data['type']]
-    )->plainTextToken;
-
-    Log::info('Connexion réussie', [
-        'login' => $data['login'],
-        'type'  => $data['type'],
-        'ip'    => $request->ip(),
-    ]);
-
-    return response()->json([
-        'message'      => 'Connexion reussie.',
-        'type'         => $data['type'],
-        'token_type'   => 'Bearer',
-        'access_token' => $plainTextToken,
-        'data'         => $userData,
-    ]);
-}
-public function updateProfile(Request $request)
-{
-    $user = auth()->user();
-    
-    if (!$user) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Non authentifié',
-        ], 401);
-    }
-    
-    $data = $request->validate([
-        'nom' => 'nullable|string|max:255',
-        'email' => 'nullable|email|max:255',
-        'password' => 'nullable|string|min:6',
-    ]);
-
-    $table = null;
-    $whereField = null;
-    $loginField = null;
-    
-    if (isset($user->user_log_adm)) {
-        $table = 'administrateur';
-        $whereField = 'user_log_adm';
-        $loginField = $user->user_log_adm;
-    } elseif (isset($user->user_log_sp)) {
-        $table = 'secretaire_principal';
-        $whereField = 'user_log_sp';
-        $loginField = $user->user_log_sp;
-    } elseif (isset($user->user_log_ens)) {
-        $table = 'enseignants';
-        $whereField = 'user_log_ens';
-        $loginField = $user->user_log_ens;
-    }
-    
-    if (!$table || !$loginField) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Type d\'utilisateur invalide',
-        ], 400);
-    }
-
-    $updates = [];
-    
-    // Mise à jour du nom
-    if (isset($data['nom'])) {
-        $parts = explode(' ', $data['nom'], 2);
-        
-        if ($table === 'administrateur') {
-            $updates['pren_adm'] = $parts[0] ?? '';
-            $updates['nom_adm'] = $parts[1] ?? $parts[0];
-        } elseif ($table === 'enseignants') {
-            $updates['pren_ens'] = $parts[0] ?? '';
-            $updates['nom_ens'] = $parts[1] ?? $parts[0];
-        } elseif ($table === 'secretaire_principal') {
-            $updates['pren_sp'] = $parts[0] ?? '';
-            $updates['nom_sp'] = $parts[1] ?? $parts[0];
+            return response()->json([
+                'message' => 'Identifiants invalides.',
+            ], 401);
         }
-    }
 
-    // Mise à jour de l'email
-    if (isset($data['email'])) {
-        $emailField = match($table) {
-            'administrateur' => 'email_adm',
-            'enseignants' => 'email_ens',
-            'secretaire_principal' => 'email_sp',
-            default => null,
-        };
-        if ($emailField) {
-            $updates[$emailField] = $data['email'];
+        if (isset($user->status) && $user->status === 'INACTIF') {
+            return response()->json([
+                'message' => 'Votre compte a été désactivé. Veuillez contacter l\'administrateur.',
+            ], 403);
         }
-    }
 
-    // Mise à jour du mot de passe
-    if (isset($data['password']) && !empty($data['password'])) {
-        $passwordField = match($table) {
-            'administrateur' => 'user_pasw_adm',
-            'enseignants' => 'user_pasw_ens',
-            'secretaire_principal' => 'user_pasw_sp',
-            default => null,
-        };
-        if ($passwordField) {
-            $updates[$passwordField] = Hash::make($data['password']);
+        DB::table($user->getTable())
+            ->where($loginField, $data['login'])
+            ->update(['last_login_at' => now()]);
+
+        $userData = [];
+        foreach ($publicFields as $field) {
+            $userData[$field] = $user->{$field};
         }
+
+        $user->tokens()->delete();
+        $plainTextToken = $user->createToken(
+            $data['type'].'-'.Str::slug($data['login']),
+            [$data['type']]
+        )->plainTextToken;
+
+        Log::info('Connexion réussie', [
+            'login' => $data['login'],
+            'type' => $data['type'],
+            'ip' => $request->ip(),
+        ]);
+
+        return response()->json([
+            'message' => 'Connexion reussie.',
+            'type' => $data['type'],
+            'token_type' => 'Bearer',
+            'access_token' => $plainTextToken,
+            'data' => $userData,
+        ]);
     }
 
-    if (!empty($updates)) {
-        $affected = DB::table($table)
-            ->where($whereField, $loginField)
-            ->update($updates);
-            
-        if ($affected === 0) {
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Aucune modification effectuée',
+                'message' => 'Non authentifié',
+            ], 401);
+        }
+
+        $data = $request->validate([
+            'nom' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $table = null;
+        $whereField = null;
+        $loginField = null;
+
+        if (isset($user->user_log_adm)) {
+            $table = 'administrateur';
+            $whereField = 'user_log_adm';
+            $loginField = $user->user_log_adm;
+        } elseif (isset($user->user_log_sp)) {
+            $table = 'secretaire_principal';
+            $whereField = 'user_log_sp';
+            $loginField = $user->user_log_sp;
+        } elseif (isset($user->user_log_ens)) {
+            $table = 'enseignants';
+            $whereField = 'user_log_ens';
+            $loginField = $user->user_log_ens;
+        }
+
+        if (! $table || ! $loginField) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Type d\'utilisateur invalide',
             ], 400);
         }
+
+        $updates = [];
+
+        // Mise à jour du nom
+        if (isset($data['nom'])) {
+            $parts = explode(' ', $data['nom'], 2);
+
+            if ($table === 'administrateur') {
+                $updates['pren_adm'] = $parts[0] ?? '';
+                $updates['nom_adm'] = $parts[1] ?? $parts[0];
+            } elseif ($table === 'enseignants') {
+                $updates['pren_ens'] = $parts[0] ?? '';
+                $updates['nom_ens'] = $parts[1] ?? $parts[0];
+            } elseif ($table === 'secretaire_principal') {
+                $updates['pren_sp'] = $parts[0] ?? '';
+                $updates['nom_sp'] = $parts[1] ?? $parts[0];
+            }
+        }
+
+        // Mise à jour de l'email
+        if (isset($data['email'])) {
+            $emailField = match ($table) {
+                'administrateur' => 'email_adm',
+                'enseignants' => 'email_ens',
+                'secretaire_principal' => 'email_sp',
+                default => null,
+            };
+            if ($emailField) {
+                $updates[$emailField] = $data['email'];
+            }
+        }
+
+        // Mise à jour du mot de passe
+        if (isset($data['password']) && ! empty($data['password'])) {
+            $passwordField = match ($table) {
+                'administrateur' => 'user_pasw_adm',
+                'enseignants' => 'user_pasw_ens',
+                'secretaire_principal' => 'user_pasw_sp',
+                default => null,
+            };
+            if ($passwordField) {
+                $updates[$passwordField] = Hash::make($data['password']);
+            }
+        }
+
+        if (! empty($updates)) {
+            $affected = DB::table($table)
+                ->where($whereField, $loginField)
+                ->update($updates);
+
+            if ($affected === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Aucune modification effectuée',
+                ], 400);
+            }
+        }
+
+        // Récupérer les nouvelles données
+        $updatedUser = DB::table($table)
+            ->where($whereField, $loginField)
+            ->first();
+
+        $userData = [];
+        if ($table === 'administrateur') {
+            $userData = [
+                'nom' => trim(($updatedUser->pren_adm ?? '').' '.($updatedUser->nom_adm ?? '')),
+                'email' => $updatedUser->email_adm ?? '',
+                'login' => $updatedUser->user_log_adm ?? '',
+            ];
+        } elseif ($table === 'enseignants') {
+            $userData = [
+                'nom' => trim(($updatedUser->pren_ens ?? '').' '.($updatedUser->nom_ens ?? '')),
+                'email' => $updatedUser->email_ens ?? '',
+                'login' => $updatedUser->user_log_ens ?? '',
+            ];
+        } elseif ($table === 'secretaire_principal') {
+            $userData = [
+                'nom' => trim(($updatedUser->pren_sp ?? '').' '.($updatedUser->nom_sp ?? '')),
+                'email' => $updatedUser->email_sp ?? '',
+                'login' => $updatedUser->user_log_sp ?? '',
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil mis à jour avec succès',
+            'data' => $userData,
+        ]);
     }
-
-    // Récupérer les nouvelles données
-    $updatedUser = DB::table($table)
-        ->where($whereField, $loginField)
-        ->first();
-
-    $userData = [];
-    if ($table === 'administrateur') {
-        $userData = [
-            'nom' => trim(($updatedUser->pren_adm ?? '') . ' ' . ($updatedUser->nom_adm ?? '')),
-            'email' => $updatedUser->email_adm ?? '',
-            'login' => $updatedUser->user_log_adm ?? '',
-        ];
-    } elseif ($table === 'enseignants') {
-        $userData = [
-            'nom' => trim(($updatedUser->pren_ens ?? '') . ' ' . ($updatedUser->nom_ens ?? '')),
-            'email' => $updatedUser->email_ens ?? '',
-            'login' => $updatedUser->user_log_ens ?? '',
-        ];
-    } elseif ($table === 'secretaire_principal') {
-        $userData = [
-            'nom' => trim(($updatedUser->pren_sp ?? '') . ' ' . ($updatedUser->nom_sp ?? '')),
-            'email' => $updatedUser->email_sp ?? '',
-            'login' => $updatedUser->user_log_sp ?? '',
-        ];
-    }
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Profil mis à jour avec succès',
-        'data' => $userData,
-    ]);
-}
-
 }

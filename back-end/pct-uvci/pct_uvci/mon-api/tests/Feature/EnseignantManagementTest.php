@@ -120,11 +120,11 @@ class EnseignantManagementTest extends TestCase
         Schema::dropIfExists('enseignants');
         Schema::dropIfExists('secretaire_principal');
         Schema::dropIfExists('administrateur');
-        Schema::dropIfExists('grade');
+        Schema::dropIfExists('grades');
         Schema::dropIfExists('statut');
         Schema::dropIfExists('departement');
 
-        Schema::create('grade', function (Blueprint $table): void {
+        Schema::create('grades', function (Blueprint $table): void {
             $table->id('id_grade');
             $table->string('lib_grade', 100);
         });
@@ -147,6 +147,8 @@ class EnseignantManagementTest extends TestCase
             $table->decimal('para_cal', 8, 2);
             $table->decimal('coef_niv', 8, 2);
             $table->decimal('taux_hor', 10, 2);
+            $table->string('status', 20)->nullable();
+            $table->timestamp('last_login_at')->nullable();
         });
 
         Schema::create('secretaire_principal', function (Blueprint $table): void {
@@ -157,6 +159,8 @@ class EnseignantManagementTest extends TestCase
             $table->string('pren_sp', 100);
             $table->string('email_sp', 150)->unique();
             $table->string('rol_sp', 50);
+            $table->string('status', 20)->nullable();
+            $table->timestamp('last_login_at')->nullable();
         });
 
         Schema::create('enseignants', function (Blueprint $table): void {
@@ -173,6 +177,8 @@ class EnseignantManagementTest extends TestCase
             $table->string('email_ens', 150)->unique();
             $table->string('tel_ens', 20);
             $table->decimal('taux_hor_ens', 10, 2);
+            $table->string('status', 20)->nullable();
+            $table->timestamp('last_login_at')->nullable();
         });
     }
 
@@ -183,11 +189,11 @@ class EnseignantManagementTest extends TestCase
         DB::statement('DROP TABLE IF EXISTS pg_temp.enseignants');
         DB::statement('DROP TABLE IF EXISTS pg_temp.secretaire_principal');
         DB::statement('DROP TABLE IF EXISTS pg_temp.administrateur');
-        DB::statement('DROP TABLE IF EXISTS pg_temp.grade');
+        DB::statement('DROP TABLE IF EXISTS pg_temp.grades');
         DB::statement('DROP TABLE IF EXISTS pg_temp.statut');
         DB::statement('DROP TABLE IF EXISTS pg_temp.departement');
 
-        DB::statement('CREATE TEMP TABLE grade (
+        DB::statement('CREATE TEMP TABLE grades (
             id_grade INTEGER PRIMARY KEY,
             lib_grade VARCHAR(100) NOT NULL
         )');
@@ -209,7 +215,9 @@ class EnseignantManagementTest extends TestCase
             rol_usr VARCHAR(50) NOT NULL,
             para_cal NUMERIC NOT NULL,
             coef_niv NUMERIC NOT NULL,
-            taux_hor NUMERIC NOT NULL
+            taux_hor NUMERIC NOT NULL,
+            status VARCHAR(20),
+            last_login_at TIMESTAMP
         )');
 
         DB::statement('CREATE TEMP TABLE secretaire_principal (
@@ -219,7 +227,9 @@ class EnseignantManagementTest extends TestCase
             nom_sp VARCHAR(100) NOT NULL,
             pren_sp VARCHAR(100) NOT NULL,
             email_sp VARCHAR(150) UNIQUE NOT NULL,
-            rol_sp VARCHAR(50) NOT NULL
+            rol_sp VARCHAR(50) NOT NULL,
+            status VARCHAR(20),
+            last_login_at TIMESTAMP
         )');
 
         DB::statement('CREATE TEMP TABLE enseignants (
@@ -235,7 +245,9 @@ class EnseignantManagementTest extends TestCase
             pren_ens VARCHAR(100) NOT NULL,
             email_ens VARCHAR(150) UNIQUE NOT NULL,
             tel_ens VARCHAR(20) NOT NULL,
-            taux_hor_ens NUMERIC NOT NULL
+            taux_hor_ens NUMERIC NOT NULL,
+            status VARCHAR(20),
+            last_login_at TIMESTAMP
         )');
     }
 
@@ -267,7 +279,7 @@ class EnseignantManagementTest extends TestCase
 
     private function insertReferentiels(): void
     {
-        DB::table('grade')->insert(['id_grade' => 1, 'lib_grade' => 'Assistant']);
+        DB::table('grades')->insert(['id_grade' => 1, 'lib_grade' => 'Assistant']);
         DB::table('statut')->insert(['id_statut' => 1, 'lib_statut' => 'Permanent']);
         DB::table('departement')->insert(['id_depart' => 1, 'lib_depart' => 'Informatique']);
     }

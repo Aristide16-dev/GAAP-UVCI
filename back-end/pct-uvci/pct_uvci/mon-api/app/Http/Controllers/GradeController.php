@@ -63,21 +63,21 @@ class GradeController extends Controller
         $oldData = [
             'taux_hor_permanent' => $grade->taux_hor_permanent,
             'taux_hor_vacataire' => $grade->taux_hor_vacataire,
-            'quota_annuel'       => $grade->quota_annuel,
+            'quota_annuel' => $grade->quota_annuel,
         ];
 
         $data = $request->validate([
-            'lib_grade'          => ['nullable', 'string', 'max:100'],
+            'lib_grade' => ['nullable', 'string', 'max:100'],
             'taux_hor_permanent' => ['nullable', 'numeric', 'min:0'],
             'taux_hor_vacataire' => ['nullable', 'numeric', 'min:0'],
-            'quota_annuel'       => ['nullable', 'integer', 'min:0'],
+            'quota_annuel' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $user = auth()->user();
         $userName = 'Utilisateur';
         if ($user) {
             if (isset($user->nom_adm) && isset($user->pren_adm)) {
-                $userName = trim($user->pren_adm . ' ' . $user->nom_adm);
+                $userName = trim($user->pren_adm.' '.$user->nom_adm);
             } elseif (isset($user->user_log_adm)) {
                 $userName = $user->user_log_adm;
             } elseif (isset($user->nom)) {
@@ -90,15 +90,15 @@ class GradeController extends Controller
             $grade->update($data);
 
             DB::table('grade_history')->insert([
-                'grade_id'   => $idGrade,
-                'user_id'    => $user?->getKey() ?? null,
-                'user_name'  => $userName,
-                'action'     => 'Mise à jour du Barème',
-                'old_data'   => json_encode($oldData),
-                'new_data'   => json_encode([
+                'grade_id' => $idGrade,
+                'user_id' => $user?->getKey() ?? null,
+                'user_name' => $userName,
+                'action' => 'Mise à jour du Barème',
+                'old_data' => json_encode($oldData),
+                'new_data' => json_encode([
                     'taux_hor_permanent' => $grade->taux_hor_permanent,
                     'taux_hor_vacataire' => $grade->taux_hor_vacataire,
-                    'quota_annuel'       => $grade->quota_annuel,
+                    'quota_annuel' => $grade->quota_annuel,
                 ]),
                 'created_at' => now(),
                 'updated_at' => now(),

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef, useCallback } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -45,28 +45,7 @@ export default function EnseignantLayout() {
   const idEns = (user as any)?.id_ens;
   const idGrade = (user as any)?.id_grade;
 
-  useEffect(() => {
-    if (!loading && !user) navigate("/login");
-  }, [user, loading, navigate]);
-
-  useEffect(() => {
-    if (!idEns || !idGrade) return;
-    loadQuotaStatus();
-    const interval = setInterval(() => loadQuotaStatus(), 60000);
-    return () => clearInterval(interval);
-  }, [idEns, idGrade]);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setShowNotifPanel(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const loadQuotaStatus = async () => {
+  const loadQuotaStatus = useCallback(async () => {
     if (!idEns || !idGrade) return;
     setNotifLoading(true);
     try {
@@ -86,7 +65,28 @@ export default function EnseignantLayout() {
     } finally {
       setNotifLoading(false);
     }
-  };
+  }, [idEns, idGrade]);
+
+  useEffect(() => {
+    if (!loading && !user) navigate("/login");
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (!idEns || !idGrade) return;
+    loadQuotaStatus();
+    const interval = setInterval(() => loadQuotaStatus(), 60000);
+    return () => clearInterval(interval);
+  }, [idEns, idGrade, loadQuotaStatus]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifPanel(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   if (loading) {
     return (

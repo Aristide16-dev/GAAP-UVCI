@@ -26,11 +26,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use Illuminate\Http\JsonResponse;
 
 class AdminUserController extends Controller
 {
@@ -78,7 +77,7 @@ class AdminUserController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $users
+            'data' => $users,
         ]);
     }
 
@@ -92,7 +91,7 @@ class AdminUserController extends Controller
             'enseignant' => $this->createEnseignant($request),
             default => response()->json([
                 'success' => false,
-                'message' => 'Rôle invalide'
+                'message' => 'Rôle invalide',
             ], 422),
         };
     }
@@ -111,10 +110,10 @@ class AdminUserController extends Controller
             $actualRole = 'enseignant';
         }
 
-        if (!$actualRole) {
+        if (! $actualRole) {
             return response()->json([
                 'success' => false,
-                'message' => 'Utilisateur introuvable'
+                'message' => 'Utilisateur introuvable',
             ], 404);
         }
 
@@ -122,7 +121,7 @@ class AdminUserController extends Controller
         if ($role && $role !== $actualRole) {
             return response()->json([
                 'success' => false,
-                'message' => 'Le changement de rôle n\'est pas supporté. Veuillez supprimer ce compte et en créer un nouveau avec le rôle souhaité.'
+                'message' => 'Le changement de rôle n\'est pas supporté. Veuillez supprimer ce compte et en créer un nouveau avec le rôle souhaité.',
             ], 422);
         }
 
@@ -137,10 +136,10 @@ class AdminUserController extends Controller
     {
         try {
             $deleted = DB::table('administrateur')->where('user_log_adm', $id)->delete();
-            if (!$deleted) {
+            if (! $deleted) {
                 $deleted = DB::table('secretaire_principal')->where('user_log_sp', $id)->delete();
             }
-            if (!$deleted) {
+            if (! $deleted) {
                 $deleted = DB::table('enseignants')->where('user_log_ens', $id)->delete();
             }
         } catch (QueryException $e) {
@@ -158,13 +157,13 @@ class AdminUserController extends Controller
         if ($deleted) {
             return response()->json([
                 'success' => true,
-                'message' => 'Utilisateur supprimé'
+                'message' => 'Utilisateur supprimé',
             ]);
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'Utilisateur introuvable'
+            'message' => 'Utilisateur introuvable',
         ], 404);
     }
 
@@ -180,13 +179,13 @@ class AdminUserController extends Controller
             ->where('user_log_adm', $id)
             ->update(['status' => $status]);
 
-        if (!$updated) {
+        if (! $updated) {
             $updated = DB::table('secretaire_principal')
                 ->where('user_log_sp', $id)
                 ->update(['status' => $status]);
         }
 
-        if (!$updated) {
+        if (! $updated) {
             $updated = DB::table('enseignants')
                 ->where('user_log_ens', $id)
                 ->update(['status' => $status]);
@@ -196,13 +195,13 @@ class AdminUserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Statut mis à jour',
-                'data' => ['id' => $id, 'status' => $status]
+                'data' => ['id' => $id, 'status' => $status],
             ]);
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'Utilisateur introuvable'
+            'message' => 'Utilisateur introuvable',
         ], 404);
     }
 
@@ -236,8 +235,8 @@ class AdminUserController extends Controller
                 'nom' => $validated['nom'],
                 'email' => 'admin@uvci.edu.ci',
                 'role' => 'administrateur',
-                'status' => 'ACTIF'
-            ]
+                'status' => 'ACTIF',
+            ],
         ], 201);
     }
 
@@ -278,36 +277,36 @@ class AdminUserController extends Controller
                 'nom' => $validated['nom'],
                 'email' => $validated['email'],
                 'role' => 'secretaire',
-                'status' => 'ACTIF'
-            ]
+                'status' => 'ACTIF',
+            ],
         ], 201);
     }
 
     private function createEnseignant(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'login'     => 'required|string|max:50|unique:enseignants,user_log_ens',
-            'nom'       => 'required|string|max:100',
-            'email'     => 'required|email|max:150|unique:enseignants,email_ens',
-            'password'  => 'required|string|min:6',
-            'id_grade'  => 'sometimes|integer|exists:grades,id_grade',
+            'login' => 'required|string|max:50|unique:enseignants,user_log_ens',
+            'nom' => 'required|string|max:100',
+            'email' => 'required|email|max:150|unique:enseignants,email_ens',
+            'password' => 'required|string|min:6',
+            'id_grade' => 'sometimes|integer|exists:grades,id_grade',
             'id_statut' => 'sometimes|integer|exists:statut,id_statut',
             'id_depart' => 'sometimes|integer|exists:departement,id_depart',
         ]);
 
         $nameParts = explode(' ', $validated['nom'], 2);
-        $nom    = $nameParts[0] ?? $validated['nom'];
+        $nom = $nameParts[0] ?? $validated['nom'];
         $prenom = $nameParts[1] ?? '';
 
         $adminLog = DB::table('administrateur')->value('user_log_adm');
-        $secLog   = DB::table('secretaire_principal')->value('user_log_sp'); // nullable
+        $secLog = DB::table('secretaire_principal')->value('user_log_sp'); // nullable
 
         // Use provided IDs or fall back to first existing referential record
-        $idGrade  = $validated['id_grade']  ?? DB::table('grades')->value('id_grade');
+        $idGrade = $validated['id_grade'] ?? DB::table('grades')->value('id_grade');
         $idStatut = $validated['id_statut'] ?? DB::table('statut')->value('id_statut');
         $idDepart = $validated['id_depart'] ?? DB::table('departement')->value('id_depart');
 
-        if (!$idGrade || !$idStatut || !$idDepart) {
+        if (! $idGrade || ! $idStatut || ! $idDepart) {
             return response()->json([
                 'success' => false,
                 'message' => 'Veuillez d\'abord configurer les grades, statuts et départements dans les référentiels.',
@@ -316,18 +315,18 @@ class AdminUserController extends Controller
 
         $data = [
             'user_log_adm' => $adminLog,
-            'user_log_sp'  => $secLog,
+            'user_log_sp' => $secLog,
             'user_log_ens' => $validated['login'],
             'user_pasw_ens' => Hash::make($validated['password']),
-            'id_grade'  => $idGrade,
+            'id_grade' => $idGrade,
             'id_statut' => $idStatut,
             'id_depart' => $idDepart,
-            'nom_ens'   => $nom,
-            'pren_ens'  => $prenom,
+            'nom_ens' => $nom,
+            'pren_ens' => $prenom,
             'email_ens' => $validated['email'],
-            'tel_ens'   => '0000000000',
+            'tel_ens' => '0000000000',
             'taux_hor_ens' => 0,
-            'status'    => 'ACTIF',
+            'status' => 'ACTIF',
         ];
 
         DB::table('enseignants')->insert($data);
@@ -336,13 +335,13 @@ class AdminUserController extends Controller
             'success' => true,
             'message' => 'Enseignant créé avec succès',
             'data' => [
-                'id'     => $validated['login'],
-                'login'  => $validated['login'],
-                'nom'    => $validated['nom'],
-                'email'  => $validated['email'],
-                'role'   => 'enseignant',
+                'id' => $validated['login'],
+                'login' => $validated['login'],
+                'nom' => $validated['nom'],
+                'email' => $validated['email'],
+                'role' => 'enseignant',
                 'status' => 'ACTIF',
-            ]
+            ],
         ], 201);
     }
 
@@ -355,22 +354,22 @@ class AdminUserController extends Controller
         ]);
 
         $updateData = [];
-        
+
         if (isset($validated['nom'])) {
             $nameParts = explode(' ', $validated['nom'], 2);
             $updateData['nom_adm'] = $nameParts[0] ?? $validated['nom'];
             $updateData['pren_adm'] = $nameParts[1] ?? '';
         }
-        
+
         if (isset($validated['email'])) {
             $updateData['email_adm'] = $validated['email'];
         }
-        
+
         if (isset($validated['password'])) {
             $updateData['user_pasw_adm'] = Hash::make($validated['password']);
         }
 
-        if (!empty($updateData)) {
+        if (! empty($updateData)) {
             DB::table('administrateur')
                 ->where('user_log_adm', $id)
                 ->update($updateData);
@@ -378,7 +377,7 @@ class AdminUserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Administrateur mis à jour'
+            'message' => 'Administrateur mis à jour',
         ]);
     }
 
@@ -391,22 +390,22 @@ class AdminUserController extends Controller
         ]);
 
         $updateData = [];
-        
+
         if (isset($validated['nom'])) {
             $nameParts = explode(' ', $validated['nom'], 2);
             $updateData['nom_sp'] = $nameParts[0] ?? $validated['nom'];
             $updateData['pren_sp'] = $nameParts[1] ?? '';
         }
-        
+
         if (isset($validated['email'])) {
             $updateData['email_sp'] = $validated['email'];
         }
-        
+
         if (isset($validated['password'])) {
             $updateData['user_pasw_sp'] = Hash::make($validated['password']);
         }
 
-        if (!empty($updateData)) {
+        if (! empty($updateData)) {
             DB::table('secretaire_principal')
                 ->where('user_log_sp', $id)
                 ->update($updateData);
@@ -414,7 +413,7 @@ class AdminUserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Secrétaire mis à jour'
+            'message' => 'Secrétaire mis à jour',
         ]);
     }
 
@@ -427,22 +426,22 @@ class AdminUserController extends Controller
         ]);
 
         $updateData = [];
-        
+
         if (isset($validated['nom'])) {
             $nameParts = explode(' ', $validated['nom'], 2);
             $updateData['nom_ens'] = $nameParts[0] ?? $validated['nom'];
             $updateData['pren_ens'] = $nameParts[1] ?? '';
         }
-        
+
         if (isset($validated['email'])) {
             $updateData['email_ens'] = $validated['email'];
         }
-        
+
         if (isset($validated['password'])) {
             $updateData['user_pasw_ens'] = Hash::make($validated['password']);
         }
 
-        if (!empty($updateData)) {
+        if (! empty($updateData)) {
             DB::table('enseignants')
                 ->where('user_log_ens', $id)
                 ->update($updateData);
@@ -450,7 +449,7 @@ class AdminUserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Enseignant mis à jour'
+            'message' => 'Enseignant mis à jour',
         ]);
     }
 }

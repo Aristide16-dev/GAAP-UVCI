@@ -32,17 +32,16 @@ class RoleMiddleware
     /**
      * Vérifie que l'utilisateur connecté a l'un des rôles autorisés.
      *
-     * @param Request  $request - La requête HTTP entrante
-     * @param Closure  $next    - La fonction à appeler si l'accès est autorisé
-     * @param string[] $roles   - Les rôles autorisés (peut en avoir plusieurs)
-     * @return Response
+     * @param  Request  $request  - La requête HTTP entrante
+     * @param  Closure  $next  - La fonction à appeler si l'accès est autorisé
+     * @param  string[]  $roles  - Les rôles autorisés (peut en avoir plusieurs)
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->user();
 
         // Si pas d'utilisateur connecté → 401 (normalement déjà géré par auth:sanctum)
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Non authentifié'], 401);
         }
 
@@ -57,7 +56,7 @@ class RoleMiddleware
         }
 
         // Si le rôle détecté n'est pas dans la liste des rôles autorisés → 403
-        if (!in_array($userType, $roles)) {
+        if (! in_array($userType, $roles)) {
             return response()->json(['message' => 'Accès non autorisé'], 403);
         }
 

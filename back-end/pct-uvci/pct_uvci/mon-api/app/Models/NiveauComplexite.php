@@ -23,9 +23,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class NiveauComplexite extends Model
 {
-    protected $table      = 'niveaux_complexite';
+    protected $table = 'niveaux_complexite';
+
     protected $primaryKey = 'id_niv_complex';
-    public $timestamps    = true; // created_at et updated_at gérés automatiquement
+
+    public $timestamps = true; // created_at et updated_at gérés automatiquement
 
     protected $fillable = [
         'lib_niv_complex',    // Libellé (ex: "N1 - Simple", "N2 - Moyen", "N3 - Complexe")
@@ -37,7 +39,7 @@ class NiveauComplexite extends Model
     protected function casts(): array
     {
         return [
-            'id_niv_complex'   => 'integer',
+            'id_niv_complex' => 'integer',
             'coeff_niv_complex' => 'float',  // Nombre décimal précis
         ];
     }

@@ -99,14 +99,15 @@ return new class extends Migration
             $table->string('titre_res', 150);
         });
 
-        Schema::create('niveau_complexite', function (Blueprint $table): void {
+        Schema::create('niveaux_complexite', function (Blueprint $table): void {
             $table->id('id_niv_complex');
-            $table->string('user_log_adm', 50)->index();
-            $table->string('lib_niveau', 100);
-            $table->text('description');
-            $table->decimal('coef_hor', 10, 2);
+            $table->string('user_log_adm', 50)->nullable()->index();
+            $table->string('lib_niv_complex', 100);
+            $table->text('description')->nullable();
+            $table->decimal('coeff_niv_complex', 10, 2);
+            $table->timestamps();
 
-            $table->foreign('user_log_adm')->references('user_log_adm')->on('administrateur')->restrictOnDelete();
+            $table->foreign('user_log_adm')->references('user_log_adm')->on('administrateur')->nullOnDelete();
         });
 
         Schema::create('type_activite', function (Blueprint $table): void {
@@ -133,7 +134,7 @@ return new class extends Migration
             $table->foreignId('id_res')->constrained('ressource', 'id_res')->restrictOnDelete();
             $table->foreignId('id_cours')->constrained('cours', 'id_cours')->restrictOnDelete();
             $table->foreignId('id_param')->constrained('parametre', 'id_param')->restrictOnDelete();
-            $table->foreignId('id_niv_complex')->constrained('niveau_complexite', 'id_niv_complex')->restrictOnDelete();
+            $table->foreignId('id_niv_complex')->constrained('niveaux_complexite', 'id_niv_complex')->restrictOnDelete();
             $table->foreignId('id_typ_activite')->constrained('type_activite', 'id_typ_activite')->restrictOnDelete();
             $table->date('date_saisie')->default(DB::raw('CURRENT_DATE'));
             $table->decimal('vol_hor_cal', 10, 2)->default(0);
@@ -158,7 +159,7 @@ return new class extends Migration
         Schema::dropIfExists('activite_pedagogique');
         Schema::dropIfExists('parametre');
         Schema::dropIfExists('type_activite');
-        Schema::dropIfExists('niveau_complexite');
+        Schema::dropIfExists('niveaux_complexite');
         Schema::dropIfExists('ressource');
         Schema::dropIfExists('type_ressource');
         Schema::dropIfExists('sequence_cours');
@@ -186,8 +187,8 @@ BEGIN
     FROM sequence_cours
     WHERE id_cours = NEW.id_cours;
 
-    SELECT coef_hor INTO v_coef_hor
-    FROM niveau_complexite
+    SELECT coeff_niv_complex INTO v_coef_hor
+    FROM niveaux_complexite
     WHERE id_niv_complex = NEW.id_niv_complex;
 
     SELECT multiplicateur_base INTO v_multiplicateur

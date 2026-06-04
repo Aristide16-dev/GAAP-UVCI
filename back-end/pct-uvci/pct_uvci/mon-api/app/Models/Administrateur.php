@@ -22,10 +22,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Administrateur extends Model
+class Administrateur extends Authenticatable
 {
     use HasApiTokens;
 
@@ -36,8 +36,10 @@ class Administrateur extends Model
      * incrementing = false indique à Laravel que la clé n'est pas auto-générée.
      */
     protected $primaryKey = 'user_log_adm';
-    public $incrementing  = false;
-    protected $keyType    = 'string';
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
 
     public $timestamps = false;
 
@@ -63,10 +65,10 @@ class Administrateur extends Model
     protected function casts(): array
     {
         return [
-            'ann_aca'   => 'integer',
-            'para_cal'  => 'decimal:2',
-            'coef_niv'  => 'decimal:2',
-            'taux_hor'  => 'decimal:2',
+            'ann_aca' => 'integer',
+            'para_cal' => 'decimal:2',
+            'coef_niv' => 'decimal:2',
+            'taux_hor' => 'decimal:2',
         ];
     }
 }

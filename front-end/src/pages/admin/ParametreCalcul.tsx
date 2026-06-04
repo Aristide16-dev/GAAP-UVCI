@@ -20,6 +20,24 @@ interface HistoryItem {
   type: string;
 }
 
+interface NiveauComplexite {
+  id_niv_complex: number;
+  coeff_niv_complex: number;
+}
+
+function asArray<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload as T[];
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "data" in payload &&
+    Array.isArray((payload as { data?: unknown }).data)
+  ) {
+    return (payload as { data: T[] }).data;
+  }
+  return [];
+}
+
 interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
@@ -88,23 +106,27 @@ export default function ParametresCalcul() {
     let isMounted = true;
     const loadData = async () => {
       try {
-        const [niveauxRes, historyRes] = await Promise.all([
-          adminService.getNiveauxComplexite(),
-          adminService.getNiveauxComplexiteHistory(),
-        ]);
+        const niveauxRes = await adminService.getNiveauxComplexite();
         if (isMounted) {
-          if (niveauxRes.data && niveauxRes.data.length > 0) {
+          const niveaux = asArray<NiveauComplexite>(niveauxRes);
+          if (niveaux.length > 0) {
             const mapped = {
-              n1: niveauxRes.data[0]?.coeff_niv_complex?.toString() || "0.40",
-              n2: niveauxRes.data[1]?.coeff_niv_complex?.toString() || "0.75",
-              n3: niveauxRes.data[2]?.coeff_niv_complex?.toString() || "1.50",
+              n1: niveaux[0]?.coeff_niv_complex?.toString() || "0.40",
+              n2: niveaux[1]?.coeff_niv_complex?.toString() || "0.75",
+              n3: niveaux[2]?.coeff_niv_complex?.toString() || "1.50",
               sequences: "4",
             };
             setDbData(mapped);
             setCoefficients(mapped);
           }
-          if (historyRes.data) setHistory(historyRes.data);
         }
+        adminService.getNiveauxComplexiteHistory()
+          .then((historyRes) => {
+            if (isMounted) setHistory(asArray<HistoryItem>(historyRes));
+          })
+          .catch(() => {
+            if (isMounted) setHistory([]);
+          });
       } catch {
         if (isMounted) toast.error("Erreur lors du chargement");
       }
@@ -150,11 +172,11 @@ export default function ParametresCalcul() {
     setLoading(true);
     try {
       const response = await adminService.getNiveauxComplexite();
-      if (!response.data || response.data.length < 3) {
+      const niveaux = asArray<NiveauComplexite>(response);
+      if (niveaux.length < 3) {
         toast.error("Données de niveaux manquantes");
         return;
       }
-      const niveaux = response.data;
 
       const updates: Promise<unknown>[] = [];
       if (coefficients.n1 !== dbData.n1)

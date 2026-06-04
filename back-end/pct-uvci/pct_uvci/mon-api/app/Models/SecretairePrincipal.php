@@ -15,10 +15,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-class SecretairePrincipal extends Model
+class SecretairePrincipal extends Authenticatable
 {
     use HasApiTokens;
 
@@ -26,8 +26,10 @@ class SecretairePrincipal extends Model
 
     /** Clé primaire STRING (login) — pas d'auto-incrément */
     protected $primaryKey = 'user_log_sp';
-    public $incrementing  = false;
-    protected $keyType    = 'string';
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
 
     public $timestamps = false;
 

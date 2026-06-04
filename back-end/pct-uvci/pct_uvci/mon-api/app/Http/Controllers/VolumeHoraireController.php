@@ -68,15 +68,15 @@ class VolumeHoraireController extends Controller
 
         $activitesData = $activites->map(function (ActivitePedagogique $activite): array {
             return [
-                'id_activite'     => $activite->id_activite,
-                'id_res'          => $activite->id_res,
-                'id_cours'        => $activite->id_cours,
-                'id_param'        => $activite->id_param,
-                'id_niv_complex'  => $activite->id_niv_complex,
+                'id_activite' => $activite->id_activite,
+                'id_res' => $activite->id_res,
+                'id_cours' => $activite->id_cours,
+                'id_param' => $activite->id_param,
+                'id_niv_complex' => $activite->id_niv_complex,
                 'id_typ_activite' => $activite->id_typ_activite,
-                'date_saisie'     => $activite->date_saisie,
-                'vol_hor_cal'     => $this->volumeHoraireService->resolvedActivityVolume($activite),
-                'statut'          => $activite->statut,
+                'date_saisie' => $activite->date_saisie,
+                'vol_hor_cal' => $this->volumeHoraireService->resolvedActivityVolume($activite),
+                'statut' => $activite->statut,
             ];
         });
 

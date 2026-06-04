@@ -29,12 +29,12 @@ class EnseignantOwnerMiddleware
     /**
      * Vérifie que l'enseignant accède uniquement à ses propres données.
      *
-     * @param Request $request - La requête HTTP contenant l'utilisateur connecté
-     * @param Closure $next    - La suite du traitement si l'accès est autorisé
+     * @param  Request  $request  - La requête HTTP contenant l'utilisateur connecté
+     * @param  Closure  $next  - La suite du traitement si l'accès est autorisé
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user  = $request->user();
+        $user = $request->user();
         // Récupérer l'id de l'enseignant ciblé dans l'URL ({idEns})
         $idEns = $request->route('idEns');
 

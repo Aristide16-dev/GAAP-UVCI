@@ -27,9 +27,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class ActivitePedagogique extends Model
 {
-    protected $table      = 'activite_pedagogique';
+    protected $table = 'activite_pedagogique';
+
     protected $primaryKey = 'id_activite';
-    public $timestamps    = false;
+
+    public $timestamps = false;
 
     /** Champs autorisés à être modifiés via Eloquent create() et update() */
     protected $fillable = [
@@ -49,16 +51,16 @@ class ActivitePedagogique extends Model
     protected function casts(): array
     {
         return [
-            'id_activite'     => 'integer',
-            'id_ens'          => 'integer',
-            'id_res'          => 'integer',
-            'id_cours'        => 'integer',
-            'id_param'        => 'integer',
-            'id_niv_complex'  => 'integer',
+            'id_activite' => 'integer',
+            'id_ens' => 'integer',
+            'id_res' => 'integer',
+            'id_cours' => 'integer',
+            'id_param' => 'integer',
+            'id_niv_complex' => 'integer',
             'id_typ_activite' => 'integer',
-            'date_saisie'     => 'date',     // Convertit en objet Carbon
-            'vol_hor_cal'     => 'decimal:2',
-            'statut'          => 'string',
+            'date_saisie' => 'date',     // Convertit en objet Carbon
+            'vol_hor_cal' => 'decimal:2',
+            'statut' => 'string',
         ];
     }
 

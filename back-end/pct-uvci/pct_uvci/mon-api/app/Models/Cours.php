@@ -25,9 +25,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cours extends Model
 {
-    protected $table      = 'cours';
+    protected $table = 'cours';
+
     protected $primaryKey = 'id_cours';
-    public $timestamps    = false;
+
+    public $timestamps = false;
 
     protected $fillable = [
         'id_niveau',   // Niveau d'études (L1, L2, M1...)
@@ -42,9 +44,9 @@ class Cours extends Model
     protected function casts(): array
     {
         return [
-            'id_cours'   => 'integer',
-            'id_niveau'  => 'integer',
-            'nb_heures'  => 'integer',
+            'id_cours' => 'integer',
+            'id_niveau' => 'integer',
+            'nb_heures' => 'integer',
             'nb_credits' => 'integer',
             'id_typ_res' => 'integer',
         ];

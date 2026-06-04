@@ -62,8 +62,8 @@ class ActivitePedagogiqueController extends Controller
 
         if (isset($data['id_cours']) || isset($data['id_niv_complex']) || isset($data['id_typ_activite'])) {
             $calcData = [
-                'id_cours'        => $data['id_cours'] ?? $activite->id_cours,
-                'id_niv_complex'  => $data['id_niv_complex'] ?? $activite->id_niv_complex,
+                'id_cours' => $data['id_cours'] ?? $activite->id_cours,
+                'id_niv_complex' => $data['id_niv_complex'] ?? $activite->id_niv_complex,
                 'id_typ_activite' => $data['id_typ_activite'] ?? $activite->id_typ_activite,
             ];
             $data['vol_hor_cal'] = $this->volumeHoraireService->calculateFromData($calcData);
@@ -103,28 +103,28 @@ class ActivitePedagogiqueController extends Controller
     private function validateStore(Request $request): array
     {
         return $request->validate([
-            'id_ens'          => ['required', 'integer', 'exists:enseignants,id_ens'],
-            'id_cours'        => ['required', 'integer', 'exists:cours,id_cours'],
-            'id_param'        => ['required', 'integer', 'exists:parametre,id_param'],
-            'id_niv_complex'  => ['required', 'integer', 'exists:niveaux_complexite,id_niv_complex'],
+            'id_ens' => ['required', 'integer', 'exists:enseignants,id_ens'],
+            'id_cours' => ['required', 'integer', 'exists:cours,id_cours'],
+            'id_param' => ['required', 'integer', 'exists:parametre,id_param'],
+            'id_niv_complex' => ['required', 'integer', 'exists:niveaux_complexite,id_niv_complex'],
             'id_typ_activite' => ['required', 'integer', 'exists:type_activite,id_typ_activite'],
-            'id_res'          => ['nullable', 'integer', 'exists:ressource,id_res'],
-            'date_saisie'     => ['sometimes', 'required', 'date'],
+            'id_res' => ['nullable', 'integer', 'exists:ressource,id_res'],
+            'date_saisie' => ['sometimes', 'required', 'date'],
         ]);
     }
 
     private function validateUpdate(Request $request): array
     {
         return $request->validate([
-            'id_ens'          => ['sometimes', 'integer', 'exists:enseignants,id_ens'],
-            'id_cours'        => ['sometimes', 'integer', 'exists:cours,id_cours'],
-            'id_param'        => ['sometimes', 'integer', 'exists:parametre,id_param'],
-            'id_niv_complex'  => ['sometimes', 'integer', 'exists:niveaux_complexite,id_niv_complex'],
+            'id_ens' => ['sometimes', 'integer', 'exists:enseignants,id_ens'],
+            'id_cours' => ['sometimes', 'integer', 'exists:cours,id_cours'],
+            'id_param' => ['sometimes', 'integer', 'exists:parametre,id_param'],
+            'id_niv_complex' => ['sometimes', 'integer', 'exists:niveaux_complexite,id_niv_complex'],
             'id_typ_activite' => ['sometimes', 'integer', 'exists:type_activite,id_typ_activite'],
-            'id_res'          => ['nullable', 'integer', 'exists:ressource,id_res'],
-            'date_saisie'     => ['sometimes', 'date'],
-            'statut'          => ['sometimes', 'string', 'in:en_attente,approuve,rejete'],
-            'vol_hor_cal'     => ['sometimes', 'numeric'],
+            'id_res' => ['nullable', 'integer', 'exists:ressource,id_res'],
+            'date_saisie' => ['sometimes', 'date'],
+            'statut' => ['sometimes', 'string', 'in:en_attente,approuve,rejete'],
+            'vol_hor_cal' => ['sometimes', 'numeric'],
         ]);
     }
 

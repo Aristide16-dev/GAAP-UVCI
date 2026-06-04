@@ -10,13 +10,21 @@
  */
 import api from "../api/axios";
 
+export interface NotifyExceedingTeachersResponse {
+  success: boolean;
+  message?: string;
+  data: {
+    total: number;
+  };
+}
+
 export const notificationService = {
   /**
    * Déclenche l'envoi de notifications à tous les enseignants
    * dont le volume horaire calculé dépasse le quota de leur grade.
    * Le serveur traite la liste et envoie les alertes.
    */
-  notifyExceedingTeachers: async (): Promise<unknown> => {
+  notifyExceedingTeachers: async (): Promise<NotifyExceedingTeachersResponse> => {
     const response = await api.post("/notifications/notify-exceeding");
     return response.data;
   },

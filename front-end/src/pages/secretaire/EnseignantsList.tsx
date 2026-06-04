@@ -202,7 +202,9 @@ export default function EnseignantsList() {
     try {
       setSaving(true);
       if (selectedEnseignant) {
-        const { user_pasw_ens: _pwd, user_log_ens: _login, ...updateData } = formData;
+        const updateData = { ...formData };
+        delete updateData.user_pasw_ens;
+        delete updateData.user_log_ens;
         await enseignantService.update(selectedEnseignant.id_ens, updateData);
         toast.success("Enseignant mis à jour avec succès");
       } else {

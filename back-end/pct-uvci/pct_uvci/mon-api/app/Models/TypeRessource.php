@@ -20,7 +20,7 @@ class TypeRessource extends Model
     protected function casts(): array
     {
         return [
-            'id_typ_res'     => 'integer',
+            'id_typ_res' => 'integer',
             'id_niv_complex' => 'integer',
         ];
     }

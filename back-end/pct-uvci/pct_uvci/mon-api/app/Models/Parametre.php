@@ -23,9 +23,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Parametre extends Model
 {
-    protected $table      = 'parametre';
+    protected $table = 'parametre';
+
     protected $primaryKey = 'id_param';
-    public $timestamps    = false;
+
+    public $timestamps = false;
 
     protected $fillable = [
         'user_log_adm',    // Administrateur ayant créé ce paramètre
@@ -38,11 +40,11 @@ class Parametre extends Model
     protected function casts(): array
     {
         return [
-            'id_param'        => 'integer',
-            'annee_acad'      => 'integer',
+            'id_param' => 'integer',
+            'annee_acad' => 'integer',
             'taux_hor_defaut' => 'decimal:2',
-            'date_debut'      => 'date',
-            'date_fin'        => 'date',
+            'date_debut' => 'date',
+            'date_fin' => 'date',
         ];
     }
 }

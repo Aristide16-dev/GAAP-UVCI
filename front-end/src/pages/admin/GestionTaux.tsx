@@ -25,6 +25,19 @@ interface HistoryEntry {
   time: string;
 }
 
+function asArray<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload as T[];
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "data" in payload &&
+    Array.isArray((payload as { data?: unknown }).data)
+  ) {
+    return (payload as { data: T[] }).data;
+  }
+  return [];
+}
+
 interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
@@ -81,13 +94,11 @@ export default function GestionTaux() {
     let isMounted = true;
     const loadData = async () => {
       try {
-        const [gradesRes, historyRes] = await Promise.all([
-          adminService.getGrades(),
-          adminService.getGradesHistory(),
-        ]);
+        const gradesRes = await adminService.getGrades();
         if (isMounted) {
-          if (gradesRes.data) {
-            const mapped: GradeRate[] = gradesRes.data.map((g) => ({
+          const grades = asArray<GradeRate & { quota_annuel?: number }>(gradesRes);
+          if (grades.length > 0) {
+            const mapped: GradeRate[] = grades.map((g) => ({
               id_grade: g.id_grade,
               lib_grade: g.lib_grade,
               taux_hor_permanent: g.taux_hor_permanent ?? 0,
@@ -97,8 +108,14 @@ export default function GestionTaux() {
             setRates(mapped);
             setOriginalRates(mapped);
           }
-          if (historyRes.data) setHistoryData(historyRes.data);
         }
+        adminService.getGradesHistory()
+          .then((historyRes) => {
+            if (isMounted) setHistoryData(asArray<HistoryEntry>(historyRes));
+          })
+          .catch(() => {
+            if (isMounted) setHistoryData([]);
+          });
       } catch {
         if (isMounted) toast.error("Erreur lors du chargement");
       } finally {

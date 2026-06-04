@@ -14,7 +14,7 @@ class NotificationController extends Controller
             ->where('is_active', true)
             ->first();
 
-        if (!$anneeAcademique) {
+        if (! $anneeAcademique) {
             return response()->json([
                 'success' => false,
                 'message' => 'Aucune année académique active',
@@ -68,7 +68,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => count($notificationsEnvoyees) . ' notifications envoyées avec succès',
+            'message' => count($notificationsEnvoyees).' notifications envoyées avec succès',
             'data' => [
                 'notifications' => $notificationsEnvoyees,
                 'total' => count($notificationsEnvoyees),

@@ -9,7 +9,6 @@ interface GradeModalProps {
 }
 
 export function GradeModal({ isOpen, onClose }: GradeModalProps) {
-  const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [localGrades, setLocalGrades] = useState<Grade[]>([]);
@@ -24,7 +23,6 @@ export function GradeModal({ isOpen, onClose }: GradeModalProps) {
     try {
       setLoading(true);
       const data = await gradeService.getAll();
-      setGrades(data);
       setLocalGrades(data);
     } catch (error) {
       console.error("Error fetching grades:", error);
@@ -59,7 +57,6 @@ export function GradeModal({ isOpen, onClose }: GradeModalProps) {
       }
 
       toast.success("Quotas mis à jour avec succès");
-      setGrades(localGrades);
       onClose();
     } catch (error) {
       console.error("Error saving grades:", error);

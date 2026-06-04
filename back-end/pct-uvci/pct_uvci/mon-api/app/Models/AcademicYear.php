@@ -35,11 +35,11 @@ class AcademicYear extends Model
 
     /** Conversion automatique des dates et booléens */
     protected $casts = [
-        'odd_semester_start'  => 'date',
-        'odd_semester_end'    => 'date',
+        'odd_semester_start' => 'date',
+        'odd_semester_end' => 'date',
         'even_semester_start' => 'date',
-        'even_semester_end'   => 'date',
-        'is_active'           => 'boolean',
+        'even_semester_end' => 'date',
+        'is_active' => 'boolean',
     ];
 
     /**

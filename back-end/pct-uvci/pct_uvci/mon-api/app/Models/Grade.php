@@ -26,7 +26,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Grade extends Model
 {
-    protected $table      = 'grades';
+    protected $table = 'grades';
+
     protected $primaryKey = 'id_grade';
 
     /** Ce modèle utilise created_at et updated_at (gérés par Laravel) */
@@ -42,10 +43,10 @@ class Grade extends Model
     protected function casts(): array
     {
         return [
-            'id_grade'            => 'integer',
-            'taux_hor_permanent'  => 'integer',
-            'taux_hor_vacataire'  => 'integer',
-            'quota_annuel'        => 'integer',
+            'id_grade' => 'integer',
+            'taux_hor_permanent' => 'integer',
+            'taux_hor_vacataire' => 'integer',
+            'quota_annuel' => 'integer',
         ];
     }
 }

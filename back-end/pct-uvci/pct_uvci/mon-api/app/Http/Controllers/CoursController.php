@@ -6,7 +6,6 @@ use App\Models\Cours;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class CoursController extends Controller
 {

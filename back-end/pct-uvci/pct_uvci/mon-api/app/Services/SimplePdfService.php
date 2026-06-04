@@ -20,7 +20,7 @@ class SimplePdfService
 
             $objects[] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 $contentObjectNumber 0 R >> >> /Contents ".($contentObjectNumber + 1).' 0 R >>';
             $objects[] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
-            $objects[] = "<< /Length ".strlen($content)." >>\nstream\n$content\nendstream";
+            $objects[] = '<< /Length '.strlen($content)." >>\nstream\n$content\nendstream";
         }
 
         $kids = implode(' ', array_map(fn (int $number): string => "$number 0 R", $pageObjectNumbers));

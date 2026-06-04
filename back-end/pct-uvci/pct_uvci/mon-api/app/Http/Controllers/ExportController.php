@@ -32,21 +32,21 @@ class ExportController extends Controller
 
     public function ficheEnseignantPdf(Request $request, int $idEns)
     {
-        $report      = $this->ficheEnseignantReport($request, $idEns);
-        $enseignant  = Enseignant::query()->select(Enseignant::publicFields())->findOrFail($idEns);
-        $grade       = Grade::find($enseignant->id_grade)?->lib_grade ?? '—';
-        $statut      = Statut::find($enseignant->id_statut)?->lib_statut ?? '—';
+        $report = $this->ficheEnseignantReport($request, $idEns);
+        $enseignant = Enseignant::query()->select(Enseignant::publicFields())->findOrFail($idEns);
+        $grade = Grade::find($enseignant->id_grade)?->lib_grade ?? '—';
+        $statut = Statut::find($enseignant->id_statut)?->lib_statut ?? '—';
         $departement = Departement::find($enseignant->id_depart)?->lib_depart ?? '—';
 
         $pdf = Pdf::loadView('exports.fiche-enseignant', [
-            'enseignant'  => $enseignant,
-            'grade'       => $grade,
-            'statut'      => $statut,
+            'enseignant' => $enseignant,
+            'grade' => $grade,
+            'statut' => $statut,
             'departement' => $departement,
-            'summary'     => $report['summary'],
-            'headers'     => $report['headers'],
-            'rows'        => $report['rows'],
-            'date'        => now()->format('d/m/Y à H\hi'),
+            'summary' => $report['summary'],
+            'headers' => $report['headers'],
+            'rows' => $report['rows'],
+            'date' => now()->format('d/m/Y à H\hi'),
         ])->setPaper('a4', 'portrait');
 
         return $pdf->download('fiche-enseignant-'.$idEns.'.pdf');
@@ -63,14 +63,14 @@ class ExportController extends Controller
 
     public function heuresPdf(Request $request)
     {
-        $report  = $this->heuresReport($request);
+        $report = $this->heuresReport($request);
         $filters = $this->validateFilters($request);
 
         $pdf = Pdf::loadView('exports.etat-heures', [
             'summary' => $report['summary'],
             'headers' => $report['headers'],
-            'rows'    => $report['rows'],
-            'date'    => now()->format('d/m/Y à H\hi'),
+            'rows' => $report['rows'],
+            'date' => now()->format('d/m/Y à H\hi'),
             'filtres' => $this->buildFiltresLabel($filters),
         ])->setPaper('a4', 'landscape');
 
@@ -88,14 +88,14 @@ class ExportController extends Controller
 
     public function paiementsPdf(Request $request)
     {
-        $report  = $this->paiementsReport($request);
+        $report = $this->paiementsReport($request);
         $filters = $this->validateFilters($request);
 
         $pdf = Pdf::loadView('exports.etat-paiements', [
             'summary' => $report['summary'],
             'headers' => $report['headers'],
-            'rows'    => $report['rows'],
-            'date'    => now()->format('d/m/Y à H\hi'),
+            'rows' => $report['rows'],
+            'date' => now()->format('d/m/Y à H\hi'),
             'filtres' => $this->buildFiltresLabel($filters),
         ])->setPaper('a4', 'landscape');
 
@@ -106,7 +106,7 @@ class ExportController extends Controller
 
     public function productionsPdf(Request $request)
     {
-        $filters   = $this->validateFilters($request);
+        $filters = $this->validateFilters($request);
         $activites = $this->filteredActivities($filters)->get();
 
         $enseignants = Enseignant::query()
@@ -127,26 +127,26 @@ class ExportController extends Controller
             ->get()->keyBy('id_niv_complex');
 
         $rows = $activites->map(fn (ActivitePedagogique $a): array => [
-            'enseignant' => trim(($enseignants->get($a->id_ens)?->nom_ens ?? '') . ' ' . ($enseignants->get($a->id_ens)?->pren_ens ?? '')),
-            'cours'      => $cours->get($a->id_cours)?->int_cours ?? "Cours #{$a->id_cours}",
-            'type'       => $types->get($a->id_typ_activite)?->lib_activite ?? "Type #{$a->id_typ_activite}",
+            'enseignant' => trim(($enseignants->get($a->id_ens)?->nom_ens ?? '').' '.($enseignants->get($a->id_ens)?->pren_ens ?? '')),
+            'cours' => $cours->get($a->id_cours)?->int_cours ?? "Cours #{$a->id_cours}",
+            'type' => $types->get($a->id_typ_activite)?->lib_activite ?? "Type #{$a->id_typ_activite}",
             'complexite' => $niveaux->get($a->id_niv_complex)?->lib_niv_complex ?? '—',
-            'volume'     => round((float) $a->vol_hor_cal, 2),
-            'statut'     => $a->statut === 'approuve' ? 'Validé' : 'En attente',
-            'date'       => optional($a->date_saisie)->format('d/m/Y'),
+            'volume' => round((float) $a->vol_hor_cal, 2),
+            'statut' => $a->statut === 'approuve' ? 'Validé' : 'En attente',
+            'date' => optional($a->date_saisie)->format('d/m/Y'),
         ])->values()->all();
 
-        $totalVH      = round(collect($rows)->sum('volume'), 2);
-        $nbValides    = collect($rows)->where('statut', 'Validé')->count();
-        $nbEnAttente  = collect($rows)->where('statut', 'En attente')->count();
+        $totalVH = round(collect($rows)->sum('volume'), 2);
+        $nbValides = collect($rows)->where('statut', 'Validé')->count();
+        $nbEnAttente = collect($rows)->where('statut', 'En attente')->count();
 
         $pdf = Pdf::loadView('exports.productions', [
-            'rows'         => $rows,
-            'total_vh'     => $totalVH,
-            'nb_valides'   => $nbValides,
-            'nb_en_attente'=> $nbEnAttente,
-            'filtres'      => $this->buildFiltresLabel($filters),
-            'date'         => now()->format('d/m/Y à H\hi'),
+            'rows' => $rows,
+            'total_vh' => $totalVH,
+            'nb_valides' => $nbValides,
+            'nb_en_attente' => $nbEnAttente,
+            'filtres' => $this->buildFiltresLabel($filters),
+            'date' => now()->format('d/m/Y à H\hi'),
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download('productions-pedagogiques.pdf');
@@ -156,7 +156,7 @@ class ExportController extends Controller
 
     public function statistiquesPdf(Request $request)
     {
-        $filters   = $this->validateFilters($request);
+        $filters = $this->validateFilters($request);
         $activites = $this->filteredActivities($filters)->get();
 
         $enseignants = Enseignant::query()
@@ -176,7 +176,7 @@ class ExportController extends Controller
             ->keyBy('id_depart');
 
         $items = $activites->map(fn (ActivitePedagogique $a): array => [
-            'activite'       => $a,
+            'activite' => $a,
             'volume_horaire' => $this->volumeHoraireService->resolvedActivityVolume($a),
         ]);
 
@@ -185,9 +185,9 @@ class ExportController extends Controller
         $parType = $items
             ->groupBy(fn (array $item): int => $item['activite']->id_typ_activite)
             ->map(fn ($group, int $idType): array => [
-                'label'   => $typesActivites->get($idType)?->lib_activite ?? "Type #$idType",
-                'count'   => $group->count(),
-                'volume'  => round($group->sum('volume_horaire'), 2),
+                'label' => $typesActivites->get($idType)?->lib_activite ?? "Type #$idType",
+                'count' => $group->count(),
+                'volume' => round($group->sum('volume_horaire'), 2),
             ])
             ->sortByDesc('count')
             ->values()
@@ -198,8 +198,8 @@ class ExportController extends Controller
                 return (int) ($enseignants->get($item['activite']->id_ens)?->id_depart ?? 0);
             })
             ->map(fn ($group, int $idDepart): array => [
-                'label'  => $departements->get($idDepart)?->lib_depart ?? "Département #$idDepart",
-                'count'  => $group->count(),
+                'label' => $departements->get($idDepart)?->lib_depart ?? "Département #$idDepart",
+                'count' => $group->count(),
                 'volume' => round($group->sum('volume_horaire'), 2),
             ])
             ->sortByDesc('volume')
@@ -209,8 +209,8 @@ class ExportController extends Controller
         $parMois = $items
             ->groupBy(fn (array $item): string => $item['activite']->date_saisie->format('Y-m'))
             ->map(fn ($group, string $mois): array => [
-                'mois'   => $mois,
-                'count'  => $group->count(),
+                'mois' => $mois,
+                'count' => $group->count(),
                 'volume' => round($group->sum('volume_horaire'), 2),
             ])
             ->sortBy('mois')
@@ -219,13 +219,13 @@ class ExportController extends Controller
 
         $pdf = Pdf::loadView('exports.statistiques', [
             'total_enseignants' => $enseignants->count(),
-            'total_heures'      => $totalHeures,
-            'total_activites'   => $activites->count(),
-            'par_type'          => $parType,
-            'par_departement'   => $parDepart,
-            'par_mois'          => $parMois,
-            'filtres'           => $this->buildFiltresLabel($filters),
-            'date'              => now()->format('d/m/Y à H\hi'),
+            'total_heures' => $totalHeures,
+            'total_activites' => $activites->count(),
+            'par_type' => $parType,
+            'par_departement' => $parDepart,
+            'par_mois' => $parMois,
+            'filtres' => $this->buildFiltresLabel($filters),
+            'date' => now()->format('d/m/Y à H\hi'),
         ])->setPaper('a4', 'portrait');
 
         return $pdf->download('statistiques-pedagogiques.pdf');
@@ -240,7 +240,7 @@ class ExportController extends Controller
         $admin = null;
         if ($request->user()) {
             $u = $request->user();
-            $admin = trim(($u->pren_adm ?? '') . ' ' . ($u->nom_adm ?? ''));
+            $admin = trim(($u->pren_adm ?? '').' '.($u->nom_adm ?? ''));
             if (empty(trim($admin))) {
                 $admin = $u->user_log_adm ?? null;
             }
@@ -248,8 +248,8 @@ class ExportController extends Controller
 
         $pdf = Pdf::loadView('exports.taux-horaires', [
             'grades' => $grades,
-            'date'   => now()->format('d/m/Y à H\hi'),
-            'admin'  => $admin,
+            'date' => now()->format('d/m/Y à H\hi'),
+            'admin' => $admin,
         ])->setPaper('a4', 'portrait');
 
         return $pdf->download('bareme-taux-horaires.pdf');
@@ -259,9 +259,9 @@ class ExportController extends Controller
 
     private function ficheEnseignantReport(Request $request, int $idEns): array
     {
-        $filters    = $this->validateFilters($request);
+        $filters = $this->validateFilters($request);
         $enseignant = Enseignant::query()->select(Enseignant::publicFields())->findOrFail($idEns);
-        $activites  = $this->filteredActivities($filters)->where('id_ens', $idEns)->get();
+        $activites = $this->filteredActivities($filters)->where('id_ens', $idEns)->get();
 
         // Résolution des libellés
         $cours = Cours::query()
@@ -285,49 +285,49 @@ class ExportController extends Controller
 
         return [
             'summary' => [
-                'enseignant'          => trim($enseignant->nom_ens.' '.$enseignant->pren_ens),
+                'enseignant' => trim($enseignant->nom_ens.' '.$enseignant->pren_ens),
                 'volume_total_heures' => round($total, 2),
-                'taux_horaire'        => round($enseignant->tauxEffectif(), 2),
-                'montant_estime'      => round($total * $enseignant->tauxEffectif(), 2),
+                'taux_horaire' => round($enseignant->tauxEffectif(), 2),
+                'montant_estime' => round($total * $enseignant->tauxEffectif(), 2),
             ],
             'headers' => $headers,
-            'rows'    => $rows,
+            'rows' => $rows,
         ];
     }
 
     private function heuresReport(Request $request): array
     {
         $filters = $this->validateFilters($request);
-        $rows    = $this->summaryRows($filters, false);
+        $rows = $this->summaryRows($filters, false);
 
         return [
             'summary' => [
-                'nombre_enseignants'  => count($rows),
+                'nombre_enseignants' => count($rows),
                 'volume_total_heures' => round(collect($rows)->sum(fn (array $row): float => (float) $row[4]), 2),
             ],
             'headers' => ['ID enseignant', 'Nom', 'Prenom', 'Nombre activites', 'Volume total'],
-            'rows'    => $rows,
+            'rows' => $rows,
         ];
     }
 
     private function paiementsReport(Request $request): array
     {
         $filters = $this->validateFilters($request);
-        $rows    = $this->summaryRows($filters, true);
+        $rows = $this->summaryRows($filters, true);
 
         return [
             'summary' => [
-                'nombre_enseignants'   => count($rows),
+                'nombre_enseignants' => count($rows),
                 'montant_total_estime' => round(collect($rows)->sum(fn (array $row): float => (float) $row[6]), 2),
             ],
             'headers' => ['ID enseignant', 'Nom', 'Prenom', 'Nombre activites', 'Volume total', 'Taux horaire', 'Montant estime'],
-            'rows'    => $rows,
+            'rows' => $rows,
         ];
     }
 
     private function summaryRows(array $filters, bool $withPayment): array
     {
-        $activites   = $this->filteredActivities($filters)->get();
+        $activites = $this->filteredActivities($filters)->get();
         $enseignants = Enseignant::query()
             ->select(Enseignant::publicFields())
             ->whereIn('id_ens', $activites->pluck('id_ens')->unique()->values())
@@ -362,9 +362,9 @@ class ExportController extends Controller
     private function validateFilters(Request $request): array
     {
         return $request->validate([
-            'id_param'   => ['sometimes', 'required', 'integer', 'exists:parametre,id_param'],
+            'id_param' => ['sometimes', 'required', 'integer', 'exists:parametre,id_param'],
             'date_debut' => ['sometimes', 'required', 'date'],
-            'date_fin'   => ['sometimes', 'required', 'date', 'after_or_equal:date_debut'],
+            'date_fin' => ['sometimes', 'required', 'date', 'after_or_equal:date_debut'],
         ]);
     }
 

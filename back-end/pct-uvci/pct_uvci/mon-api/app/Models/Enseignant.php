@@ -19,10 +19,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Enseignant extends Model
+class Enseignant extends Authenticatable
 {
     // HasApiTokens permet à l'enseignant de s'authentifier via des tokens Sanctum
     use HasApiTokens;
@@ -72,11 +72,11 @@ class Enseignant extends Model
     protected function casts(): array
     {
         return [
-            'id_ens'          => 'integer',
-            'id_grade'        => 'integer',
-            'id_statut'       => 'integer',
-            'id_depart'       => 'integer',
-            'taux_hor_ens'    => 'decimal:2',
+            'id_ens' => 'integer',
+            'id_grade' => 'integer',
+            'id_statut' => 'integer',
+            'id_depart' => 'integer',
+            'taux_hor_ens' => 'decimal:2',
         ];
     }
 
@@ -116,8 +116,8 @@ class Enseignant extends Model
         }
 
         // Vérifier si l'enseignant est vacataire en cherchant le mot "vacataire" dans le statut
-        $statut      = Statut::find($this->id_statut);
-        $libStatut   = $statut ? strtolower($statut->lib_statut) : '';
+        $statut = Statut::find($this->id_statut);
+        $libStatut = $statut ? strtolower($statut->lib_statut) : '';
         $isVacataire = str_contains($libStatut, 'vacataire');
 
         // Retourner le bon taux selon le type de contrat

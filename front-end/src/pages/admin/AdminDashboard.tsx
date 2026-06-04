@@ -146,6 +146,9 @@ export default function AdminDashboard() {
   ];
 
   const toggleStatus = (user: User) => {
+    if (user.id == null) return;
+
+    const userId = user.id;
     const newStatus: Status = user.status === "ACTIF" ? "INACTIF" : "ACTIF";
     const action = newStatus === "ACTIF" ? "activer" : "désactiver";
     setConfirmModal({
@@ -156,9 +159,9 @@ export default function AdminDashboard() {
       confirmColor: newStatus === "ACTIF" ? "success" : "warning",
       onConfirm: async () => {
         try {
-          await adminService.toggleUserStatus(user.id, newStatus);
-          setUsersList((prev) => prev.map((u) => u.id === user.id ? { ...u, status: newStatus } : u));
-          toast.success(`Compte ${newStatus === "ACTIF" ? "activé" : "désactivé"} avec succès`, { toastId: `toggle-status-${user.id}` });
+          await adminService.toggleUserStatus(userId, newStatus);
+          setUsersList((prev) => prev.map((u) => u.id === userId ? { ...u, status: newStatus } : u));
+          toast.success(`Compte ${newStatus === "ACTIF" ? "activé" : "désactivé"} avec succès`, { toastId: `toggle-status-${userId}` });
           loadStats();
         } catch (error) {
           console.error(error);
@@ -172,6 +175,7 @@ export default function AdminDashboard() {
   const handleSave = async (data: Partial<User> & { password?: string }) => {
     try {
       if (selectedUser) {
+        if (selectedUser.id == null) return;
         await adminService.updateUser(selectedUser.id, data);
         toast.success("Utilisateur modifié avec succès", { toastId: "update-user" });
       } else {
@@ -201,6 +205,9 @@ export default function AdminDashboard() {
   };
 
   const handleDelete = (user: User) => {
+    if (user.id == null) return;
+
+    const userId = user.id;
     setConfirmModal({
       isOpen: true,
       title: "Supprimer ce compte",
@@ -209,9 +216,9 @@ export default function AdminDashboard() {
       confirmColor: "error",
       onConfirm: async () => {
         try {
-          await adminService.deleteUser(user.id);
-          setUsersList((prev) => prev.filter((u) => u.id !== user.id));
-          toast.success("Utilisateur supprimé avec succès", { toastId: `delete-user-${user.id}` });
+          await adminService.deleteUser(userId);
+          setUsersList((prev) => prev.filter((u) => u.id !== userId));
+          toast.success("Utilisateur supprimé avec succès", { toastId: `delete-user-${userId}` });
           loadStats();
         } catch (error) {
           console.error(error);

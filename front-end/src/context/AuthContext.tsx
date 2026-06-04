@@ -120,8 +120,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("token", access_token);
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("role", type);
-      } catch (error) {
-        throw error; // Re-propager pour que la page Login affiche l'erreur
       } finally {
         setLoading(false);
       }

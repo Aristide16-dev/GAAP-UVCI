@@ -68,11 +68,11 @@ class NiveauComplexiteController extends Controller
         $userName = 'Inconnu';
         if ($user) {
             if (isset($user->nom_adm)) {
-                $userName = trim(($user->pren_adm ?? '') . ' ' . ($user->nom_adm ?? ''));
+                $userName = trim(($user->pren_adm ?? '').' '.($user->nom_adm ?? ''));
             } elseif (isset($user->nom_sp)) {
-                $userName = trim(($user->pren_sp ?? '') . ' ' . ($user->nom_sp ?? ''));
+                $userName = trim(($user->pren_sp ?? '').' '.($user->nom_sp ?? ''));
             } elseif (isset($user->nom_ens)) {
-                $userName = trim(($user->pren_ens ?? '') . ' ' . ($user->nom_ens ?? ''));
+                $userName = trim(($user->pren_ens ?? '').' '.($user->nom_ens ?? ''));
             } elseif (isset($user->nom)) {
                 $userName = $user->nom;
             }
@@ -87,11 +87,11 @@ class NiveauComplexiteController extends Controller
 
             DB::table('complexity_history')->insert([
                 'niveau_complexite_id' => $idNivComplex,
-                'user_id'   => $user?->getKey() ?? null,
+                'user_id' => $user?->getKey() ?? null,
                 'user_name' => $userName,
-                'action'    => 'Mise à jour des coefficients',
-                'old_data'  => json_encode($oldData),
-                'new_data'  => json_encode(['coeff_niv_complex' => $niveau->coeff_niv_complex]),
+                'action' => 'Mise à jour des coefficients',
+                'old_data' => json_encode($oldData),
+                'new_data' => json_encode(['coeff_niv_complex' => $niveau->coeff_niv_complex]),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -142,7 +142,7 @@ class NiveauComplexiteController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $history
+            'data' => $history,
         ]);
     }
 
@@ -152,32 +152,33 @@ class NiveauComplexiteController extends Controller
             'message' => 'Niveau de complexite introuvable.',
         ], 404);
     }
+
     public function deleteNiveauxComplexiteHistory($id): JsonResponse
     {
-        $deleted = \Illuminate\Support\Facades\DB::table('complexity_history')
+        $deleted = DB::table('complexity_history')
             ->where('id', $id)
             ->delete();
 
         if ($deleted) {
             return response()->json([
                 'success' => true,
-                'message' => 'Entrée d\'historique supprimée avec succès'
+                'message' => 'Entrée d\'historique supprimée avec succès',
             ], 200);
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'Entrée d\'historique non trouvée'
+            'message' => 'Entrée d\'historique non trouvée',
         ], 404);
     }
 
     public function clearNiveauxComplexiteHistory(): JsonResponse
     {
-        \Illuminate\Support\Facades\DB::table('complexity_history')->truncate();
+        DB::table('complexity_history')->truncate();
 
         return response()->json([
             'success' => true,
-            'message' => 'Historique vidé avec succès'
+            'message' => 'Historique vidé avec succès',
         ], 200);
     }
 }

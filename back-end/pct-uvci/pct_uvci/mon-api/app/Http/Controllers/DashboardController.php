@@ -29,7 +29,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
 use App\Models\ActivitePedagogique;
 use App\Models\Departement;
 use App\Models\Enseignant;
@@ -37,6 +36,7 @@ use App\Models\TypeActivite;
 use App\Services\VolumeHoraireService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -227,7 +227,7 @@ class DashboardController extends Controller
             ->where('is_active', true)
             ->first();
 
-        if (!$anneeAcademique) {
+        if (! $anneeAcademique) {
             return response()->json([
                 'success' => false,
                 'message' => 'Aucune année académique active',
@@ -276,7 +276,7 @@ class DashboardController extends Controller
                 ->where('p.annee_acad', $anneeInt)
                 ->where('ap.date_saisie', '>=', now()->subYears(5))
                 ->groupBy(DB::raw("TO_CHAR(ap.date_saisie, 'YYYY')"))
-                ->orderByRaw("MIN(ap.date_saisie)")
+                ->orderByRaw('MIN(ap.date_saisie)')
                 ->get();
         } else {
             $productionMensuelle = DB::table('activite_pedagogique as ap')
@@ -288,7 +288,7 @@ class DashboardController extends Controller
                 ->where('p.annee_acad', $anneeInt)
                 ->where('ap.date_saisie', '>=', now()->subMonths(6))
                 ->groupBy(DB::raw("TO_CHAR(ap.date_saisie, 'YYYY-MM')"))
-                ->orderByRaw("MIN(ap.date_saisie)")
+                ->orderByRaw('MIN(ap.date_saisie)')
                 ->get();
         }
 

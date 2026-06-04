@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from "react";
+﻿import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { BookOpen, Save, Pencil, Trash2, AlertTriangle, X, Plus } from "lucide-react";
 import { toast } from "react-toastify";
 import { niveauService, type Niveau } from "../../services/Niveau.service";
@@ -39,6 +39,11 @@ function getNiveauColor(niv: number | null | undefined) {
   return NIVEAU_COLORS[niv ?? 0] ?? { bg: "bg-base-200", text: "text-neutral", border: "border-base-300", dot: "bg-neutral" };
 }
 
+function toValidId(value: unknown): number {
+  const id = Number(value);
+  return Number.isFinite(id) && id > 0 ? id : 0;
+}
+
 export default function GestionCours() {
   const [formData, setFormData] = useState<CoursFormData>(EMPTY_FORM);
   const [niveaux, setNiveaux] = useState<Niveau[]>([]);
@@ -54,6 +59,10 @@ export default function GestionCours() {
 
   const nbSequences = formData.nb_heures * SEQUENCES_PAR_HEURE;
   const progressValue = Math.min((formData.nb_heures / 120) * 100, 100);
+  const validNiveaux = useMemo(
+    () => niveaux.filter((n) => toValidId(n.id_niveau)),
+    [niveaux],
+  );
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -67,7 +76,7 @@ export default function GestionCours() {
       setCoursList(coursData);
       setTypesRessources(typResData);
       if (niveauxData.length > 0) {
-        const firstId = Number(niveauxData[0].id_niveau);
+        const firstId = toValidId(niveauxData[0].id_niveau);
         setSelectedNiveauId(firstId);
         setFormData((prev) => ({ ...prev, id_niveau: firstId }));
       }
@@ -80,8 +89,22 @@ export default function GestionCours() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  useEffect(() => {
+    if (toValidId(formData.id_niveau) || validNiveaux.length === 0) return;
+
+    const firstId = toValidId(validNiveaux[0].id_niveau);
+    setSelectedNiveauId(firstId);
+    setFormData((prev) => ({ ...prev, id_niveau: firstId }));
+  }, [formData.id_niveau, validNiveaux]);
+
+  const selectNiveau = (niveauId: number) => {
+    if (!niveauId) return;
+    setSelectedNiveauId(niveauId);
+    setFormData((prev) => ({ ...prev, id_niveau: niveauId }));
+  };
+
   const openNewForm = () => {
-    const firstId = niveaux[0] ? Number(niveaux[0].id_niveau) : 0;
+    const firstId = niveaux[0] ? toValidId(niveaux[0].id_niveau) : 0;
     setEditingCourseId(null);
     setSelectedNiveauId(firstId);
     setFormData({ ...EMPTY_FORM, id_niveau: firstId });
@@ -90,11 +113,12 @@ export default function GestionCours() {
 
   const openEditForm = (cours: Cours) => {
     setEditingCourseId(cours.id_cours);
-    setSelectedNiveauId(Number(cours.id_niveau));
+    const niveauId = toValidId(cours.id_niveau);
+    setSelectedNiveauId(niveauId);
     setFormData({
       int_cours: cours.int_cours,
       filiere: cours.filiere,
-      id_niveau: Number(cours.id_niveau),
+      id_niveau: niveauId,
       semestre: cours.semestre,
       nb_credits: cours.nb_credits,
       nb_heures: cours.nb_heures,
@@ -107,22 +131,27 @@ export default function GestionCours() {
   const closeForm = () => {
     setShowForm(false);
     setEditingCourseId(null);
-    const firstId = niveaux[0] ? Number(niveaux[0].id_niveau) : 0;
+    const firstId = niveaux[0] ? toValidId(niveaux[0].id_niveau) : 0;
     setSelectedNiveauId(firstId);
     setFormData({ ...EMPTY_FORM, id_niveau: firstId });
   };
 
   const submitForm = async () => {
+    const niveauId =
+      toValidId(formData.id_niveau) ||
+      toValidId(selectedNiveauId) ||
+      toValidId(validNiveaux[0]?.id_niveau);
     if (!formData.int_cours.trim()) { toast.error("Veuillez saisir l'intitulé du cours"); return; }
     if (!formData.filiere.trim()) { toast.error("Veuillez saisir la filière"); return; }
-    if (!formData.id_niveau) { toast.error("Veuillez sélectionner un niveau"); return; }
+    if (!niveauId) { toast.error("Veuillez sélectionner un niveau"); return; }
+    const payload = { ...formData, id_niveau: niveauId };
     try {
       setSaving(true);
       if (editingCourseId) {
-        await coursService.update(editingCourseId, formData);
+        await coursService.update(editingCourseId, payload);
         toast.success("Cours modifié avec succès");
       } else {
-        await coursService.create(formData);
+        await coursService.create(payload);
         toast.success("Cours enregistré avec succès");
       }
       const updated = await coursService.getAll();
@@ -239,22 +268,46 @@ export default function GestionCours() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                       <label className="label"><span className="label-text text-sm uppercase font-black tracking-wider text-neutral">Niveau</span></label>
-                      {niveaux.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                          {niveaux.map((n) => {
-                            const nId = Number(n.id_niveau);
-                            return (
-                              <button key={nId} type="button"
-                                onClick={() => { setSelectedNiveauId(nId); setFormData((p) => ({ ...p, id_niveau: nId })); }}
-                                className={`btn rounded-xl min-w-13 border-none font-black transition-all ${
-                                  selectedNiveauId === nId ? "btn-primary text-white" : "bg-base-300 text-neutral hover:bg-base-200"
-                                }`}>
-                                {n.lib_niveau}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      ) : <p className="text-sm text-neutral">Aucun niveau disponible</p>}
+                      <div className="space-y-3">
+                        <select
+                          value={toValidId(formData.id_niveau) || toValidId(selectedNiveauId)}
+                          onChange={(e) => selectNiveau(toValidId(e.target.value))}
+                          className="select select-bordered bg-transparent border-[#ead2e6] rounded-lg w-full outline-none transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          disabled={validNiveaux.length === 0}
+                          required
+                        >
+                          {validNiveaux.length === 0 ? (
+                            <option value={0}>Aucun niveau disponible</option>
+                          ) : (
+                            validNiveaux.map((n) => {
+                              const nId = toValidId(n.id_niveau);
+                              return <option key={nId} value={nId}>{n.lib_niveau}</option>;
+                            })
+                          )}
+                        </select>
+
+                        {validNiveaux.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {validNiveaux.map((n) => {
+                              const nId = toValidId(n.id_niveau);
+                              if (!nId) return null;
+                              return (
+                                <button key={nId} type="button"
+                                  onClick={() => selectNiveau(nId)}
+                                  className={`btn rounded-xl min-w-13 border-none font-black transition-all ${
+                                    (toValidId(formData.id_niveau) || selectedNiveauId) === nId ? "btn-primary text-white" : "bg-base-300 text-neutral hover:bg-base-200"
+                                  }`}>
+                                  {n.lib_niveau}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-warning font-bold">
+                            Aucun niveau d'étude n'est configuré dans la base.
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     <div>

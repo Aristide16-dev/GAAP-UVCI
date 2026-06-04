@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('grade_history', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('grade_id');
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('user_id')->nullable();
             $table->string('action');
             $table->json('old_data')->nullable();
             $table->json('new_data')->nullable();
